@@ -1,0 +1,1 @@
+https://ghcr.io/pramudya-27/item-app:v1

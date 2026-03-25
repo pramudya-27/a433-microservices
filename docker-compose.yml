@@ -1,0 +1,29 @@
+version: "3.8"
+
+services:
+  # Konfigurasi service untuk database
+  item-db:
+    # Menggunakan image mongodb versi 3
+    image: mongo:3
+    # Volume mapping agar data database persisten di lokal
+    volumes:
+      - app-db:/data/db
+    # Mengaktifkan restart policy untuk memastikan layanan selalu hidup
+    restart: always
+
+  # Konfigurasi service untuk aplikasi utama
+  item-app:
+    # Gunakan image dari registry
+    image: ghcr.io/pramudya-27/item-app:v1
+    # Port mapping untuk mengekspos port 80 ke 8080
+    ports:
+      - "80:8080"
+    # Menunggu database agar siap lebih dulu sebelum start
+    depends_on:
+      - item-db
+    # Restart policy always memastikan kontainer direstart saat gagal
+    restart: always
+
+# Konfigurasi untuk named volume
+volumes:
+  app-db:
