@@ -1,0 +1,33 @@
+name: Lint and Build Frontend
+
+on:
+  push:
+    branches:
+      - karsajobs-ui
+
+jobs:
+  # Job 1: Lint Dockerfile
+  lint-dockerfile:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Lint Dockerfile
+        uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: "Dockerfile"
+
+  # Job 2: Build and Push Docker Image
+  build-and-push-image:
+    needs: lint-dockerfile
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      # Mengeksekusi script bash build_push yang ada di repo frontend
+      - name: Execute Build and Push Script
+        env:
+          PASSWORD_DOCKER_HUB: ${{ secrets.PASSWORD_DOCKER_HUB }}
+        run: bash build_push_image_karsajobs_ui.sh
