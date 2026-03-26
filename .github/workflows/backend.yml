@@ -22,6 +22,17 @@ jobs:
   test-app:
     needs: lint-dockerfile
     runs-on: ubuntu-latest
+
+    # Menambahkan service container MongoDB karena go test karsajobs membutuhkan koneksi DB aktif
+    services:
+      mongodb:
+        image: mongo:latest
+        env:
+          MONGO_INITDB_ROOT_USERNAME: admin
+          MONGO_INITDB_ROOT_PASSWORD: supersecretpassword
+        ports:
+          - 27017:27017
+
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
@@ -32,6 +43,11 @@ jobs:
           go-version: "1.20"
 
       - name: Run Tests
+        env:
+          # Memberikan environment connection variable yang match dengan testing container
+          MONGO_HOST: localhost
+          MONGO_USER: admin
+          MONGO_PASS: supersecretpassword
         run: go test -v ./...
 
   # Job 3: Build and Push Docker Image
