@@ -44,12 +44,9 @@ jobs:
     executor: docker-publisher
     steps:
       - checkout
-      - setup_remote_docker:
-          version: 20.10.14
+      - setup_remote_docker
       - run:
           name: Execute Build and Push Script
-          # Tidak perlu menset env var PASSWORD_DOCKER_HUB disini karena
-          # otomatis mengalir dari Environment Variables di Dashboard CircleCI
           command: bash build_push_image_karsajobs.sh
 
 workflows:
