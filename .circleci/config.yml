@@ -3,7 +3,7 @@ version: 2.1
 executors:
   docker-publisher:
     environment:
-      IMAGE_NAME_FRONTEND: dio713/karsajobs-ui
+      IMAGE_NAME_FRONTEND: ghcr.io/pramudya-27/karsajobs-ui
     docker:
       - image: cimg/go:1.20 # Image dasar
 
