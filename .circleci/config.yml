@@ -1,0 +1,40 @@
+version: 2.1
+
+executors:
+  docker-publisher:
+    environment:
+      IMAGE_NAME_FRONTEND: dio713/karsajobs-ui
+    docker:
+      - image: cimg/go:1.20 # Image dasar
+
+jobs:
+  # Linter Dockerfile
+  lint-dockerfile:
+    docker:
+      - image: hadolint/hadolint:latest-debian
+    steps:
+      - checkout
+      - run:
+          name: Lint Dockerfile Frontend
+          command: hadolint Dockerfile
+
+  # Execute Script bash untuk build dan push
+  build-push-image:
+    executor: docker-publisher
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: 20.10.14
+      - run:
+          name: Execute Build and Push Script
+          # Variabel PASSWORD_DOCKER_HUB otomatis tersedia dari setting project CircleCI
+          command: bash build_push_image_karsajobs_ui.sh
+
+workflows:
+  version: 2
+  frontend-workflow:
+    jobs:
+      - lint-dockerfile
+      - build-push-image:
+          requires:
+            - lint-dockerfile
