@@ -11,12 +11,14 @@ jobs:
   # Linter Dockerfile
   lint-dockerfile:
     docker:
-      - image: hadolint/hadolint:latest-debian
+      - image: cimg/go:1.20
     steps:
-      - run:
-          name: Install Git for Checkout
-          command: apt-get update && apt-get install -y git ssh
       - checkout
+      - run:
+          name: Install Hadolint
+          command: |
+             sudo wget -qO /usr/local/bin/hadolint https://github.com/hadolint/hadolint/releases/download/v2.12.0/hadolint-Linux-x86_64
+             sudo chmod +x /usr/local/bin/hadolint
       - run:
           name: Lint Dockerfile Frontend
           command: hadolint Dockerfile
