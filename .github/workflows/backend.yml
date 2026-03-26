@@ -1,0 +1,50 @@
+name: Lint, Test, and Build Backend
+
+on:
+  push:
+    branches:
+      - karsajobs
+
+jobs:
+  # Job 1: Lint Dockerfile
+  lint-dockerfile:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Lint Dockerfile
+        uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: "Dockerfile"
+
+  # Job 2: Run Go Tests
+  test-app:
+    needs: lint-dockerfile
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Setup Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: "1.20"
+
+      - name: Run Tests
+        run: go test -v ./...
+
+  # Job 3: Build and Push Docker Image
+  build-and-push-image:
+    needs: test-app
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      # Mengeksekusi script file bash yang ada di dalam root repo ini
+      # Environment variables disuplai dari GitHub Secrets ke script bash
+      - name: Execute Build and Push Script
+        env:
+          PASSWORD_DOCKER_HUB: ${{ secrets.PASSWORD_DOCKER_HUB }}
+        run: bash build_push_image_karsajobs.sh
