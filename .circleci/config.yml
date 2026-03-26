@@ -13,6 +13,9 @@ jobs:
     docker:
       - image: hadolint/hadolint:latest-debian
     steps:
+      - run:
+          name: Install Git for Checkout
+          command: apt-get update && apt-get install -y git ssh
       - checkout
       - run:
           name: Lint Dockerfile Frontend
