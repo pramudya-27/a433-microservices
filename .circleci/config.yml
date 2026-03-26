@@ -3,7 +3,7 @@ version: 2.1
 executors:
   docker-publisher:
     environment:
-      IMAGE_NAME_BACKEND: dio713/karsajobs
+      IMAGE_NAME_BACKEND: ghcr.io/pramudya-27/karsajobs
     docker:
       - image: cimg/go:1.20
 
