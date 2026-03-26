@@ -1,0 +1,62 @@
+version: 2.1
+
+executors:
+  docker-publisher:
+    environment:
+      IMAGE_NAME_BACKEND: dio713/karsajobs
+    docker:
+      - image: cimg/go:1.20
+
+jobs:
+  # Linter Dockerfile
+  lint-dockerfile:
+    docker:
+      - image: hadolint/hadolint:latest-debian
+    steps:
+      - checkout
+      - run:
+          name: Lint Dockerfile Backend
+          command: hadolint Dockerfile
+
+  # Testing App (dengan MongoDB Service Container di CircleCI)
+  test-app:
+    docker:
+      - image: cimg/go:1.20 # Container utama untuk testing backend Go
+      - image: mongo:latest # Container background database
+        environment:
+          MONGO_INITDB_ROOT_USERNAME: admin
+          MONGO_INITDB_ROOT_PASSWORD: supersecretpassword
+    steps:
+      - checkout
+      - run:
+          name: Run Go Test
+          environment:
+            MONGO_HOST: 127.0.0.1
+            MONGO_USER: admin
+            MONGO_PASS: supersecretpassword
+          command: go test -v ./...
+
+  # Execute Script bash untuk build dan push
+  build-push-image:
+    executor: docker-publisher
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: 20.10.14
+      - run:
+          name: Execute Build and Push Script
+          # Tidak perlu menset env var PASSWORD_DOCKER_HUB disini karena
+          # otomatis mengalir dari Environment Variables di Dashboard CircleCI
+          command: bash build_push_image_karsajobs.sh
+
+workflows:
+  version: 2
+  backend-workflow:
+    jobs:
+      - lint-dockerfile
+      - test-app:
+          requires:
+            - lint-dockerfile
+      - build-push-image:
+          requires:
+            - test-app
